@@ -1,0 +1,21 @@
+{
+  "name": "data-animation-skills",
+  "version": "0.1.0",
+  "description": "Data animation / animated infographic skills for AI coding agents — turn a CSV into a chart that moves, with exact, accurate numbers on every frame.",
+  "author": {
+    "name": "iart.ai",
+    "url": "https://iart.ai"
+  },
+  "homepage": "https://iart.ai",
+  "repository": "https://github.com/iart-ai/data-animation-skills",
+  "license": "MIT",
+  "keywords": [
+    "data-animation",
+    "chart-animation",
+    "data-visualization",
+    "animated-infographic",
+    "presentation-video",
+    "motion-graphics",
+    "claude-skill"
+  ]
+}

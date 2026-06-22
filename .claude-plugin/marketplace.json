@@ -1,0 +1,14 @@
+{
+  "name": "data-animation-skills",
+  "owner": {
+    "name": "iart.ai",
+    "url": "https://iart.ai"
+  },
+  "plugins": [
+    {
+      "name": "data-animation-skills",
+      "source": "./",
+      "description": "Data animation / animated infographic skills for AI coding agents — turn a CSV into a chart that moves, with exact, accurate numbers on every frame."
+    }
+  ]
+}

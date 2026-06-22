@@ -10,15 +10,23 @@
 npx skills add iart-ai/data-animation-skills
 ```
 
+Or add it as a Claude Code plugin marketplace:
+
+```bash
+/plugin marketplace add iart-ai/data-animation-skills
+```
+
+then `/plugin install data-animation-skills`.
+
 Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 ## What's included
 
 | Skill | What it does |
 |---|---|
-| [chart-animation](./chart-animation) | Turn a dataset into an animated chart — bar chart race, line/area reveal, count-up tickers, and batch render one template across many CSVs. |
-| [animated-infographic](./animated-infographic) | Build a designed infographic — icons, key numbers, connectors — and reveal it in a staggered cascade. |
-| [presentation-video](./presentation-video) | Rebuild a slide deck as a narrated, auto-advancing video with build reveals timed to the voiceover. |
+| [chart-animation](./skills/chart-animation) | Turn a dataset into an animated chart — bar chart race, line/area reveal, count-up tickers, and batch render one template across many CSVs. |
+| [animated-infographic](./skills/animated-infographic) | Build a designed infographic — icons, key numbers, connectors — and reveal it in a staggered cascade. |
+| [presentation-video](./skills/presentation-video) | Rebuild a slide deck as a narrated, auto-advancing video with build reveals timed to the voiceover. |
 
 ## When it activates
 
@@ -38,9 +46,9 @@ Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 ## Skills
 
-- [chart-animation](./chart-animation)
-- [animated-infographic](./animated-infographic)
-- [presentation-video](./presentation-video)
+- [chart-animation](./skills/chart-animation)
+- [animated-infographic](./skills/animated-infographic)
+- [presentation-video](./skills/presentation-video)
 
 ## Topics
 
