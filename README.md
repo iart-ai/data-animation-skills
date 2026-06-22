@@ -14,7 +14,7 @@ Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 | Skill | What it does |
 |---|---|
-| [data-video](./data-video) | Turn a dataset into an animated chart — bar chart race, line/area reveal, count-up tickers, and batch render one template across many CSVs. |
+| [chart-animation](./chart-animation) | Turn a dataset into an animated chart — bar chart race, line/area reveal, count-up tickers, and batch render one template across many CSVs. |
 | [animated-infographic](./animated-infographic) | Build a designed infographic — icons, key numbers, connectors — and reveal it in a staggered cascade. |
 | [presentation-video](./presentation-video) | Rebuild a slide deck as a narrated, auto-advancing video with build reveals timed to the voiceover. |
 
@@ -36,7 +36,7 @@ Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 ## Skills
 
-- [data-video](./data-video)
+- [chart-animation](./chart-animation)
 - [animated-infographic](./animated-infographic)
 - [presentation-video](./presentation-video)
 

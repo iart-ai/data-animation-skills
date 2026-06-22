@@ -1,5 +1,5 @@
 ---
-name: data-video
+name: chart-animation
 description: This skill should be used when the user asks to "make a bar chart race", "turn a CSV into a video", "build an animated data visualization", "create an animated statistics video", "animate a chart/graph", "make a number counter/ticker", "animate a ranking over time", or "batch-render one chart template across many datasets". Covers data-driven keyframing, value interpolation, rank transitions, counters, pacing, annotation, and template×data batch output.
 version: 0.1.0
 ---

@@ -1,6 +1,6 @@
 ---
 name: animated-infographic
-description: This skill should be used when the user asks to "make an animated infographic", "create an infographic video", "build an infographic animation", "animate an explainer infographic", "do a sequenced reveal of icons and stats", "animate icons with key numbers and connectors", or "lay out a designed infographic that animates in sequence". Covers infographic layout & visual hierarchy, staggered element reveals, animating icons/pictograms, key-number counters, connectors/flow, and section pacing. For heavy charting (bar chart race, charts from a CSV) use the data-video skill instead.
+description: This skill should be used when the user asks to "make an animated infographic", "create an infographic video", "build an infographic animation", "animate an explainer infographic", "do a sequenced reveal of icons and stats", "animate icons with key numbers and connectors", or "lay out a designed infographic that animates in sequence". Covers infographic layout & visual hierarchy, staggered element reveals, animating icons/pictograms, key-number counters, connectors/flow, and section pacing. For heavy charting (bar chart race, charts from a CSV) use the chart-animation skill instead.
 version: 0.1.0
 ---
 
@@ -14,7 +14,7 @@ Build a *designed* infographic — icons, a few key numbers, short text, and sim
 - Sequenced reveal of icon + stat + label + connector as a single designed scene.
 - Pictogram/icon animation, count-up key numbers, flow connectors between steps.
 
-This skill owns the **composed infographic**. For a chart that *is* the content (bar chart race, animated line/area, a graph driven by a CSV), use **data-video** — and compose its chart as one block inside an infographic here rather than rebuilding it.
+This skill owns the **composed infographic**. For a chart that *is* the content (bar chart race, animated line/area, a graph driven by a CSV), use **chart-animation** — and compose its chart as one block inside an infographic here rather than rebuilding it.
 
 ## The one rule: design the static frame first
 
@@ -74,7 +74,7 @@ For pictogram fills (e.g. "7 of 10 people"), reveal units on the same stagger an
 
 ## Key numbers: counters that settle
 
-Interpolate the underlying number, ease it, then format on render. Two musts: **round before formatting**, and use `tabular-nums` so the layout doesn't jitter as digits change. (Shared craft with data-video — see its counter section for currency/percent variants.)
+Interpolate the underlying number, ease it, then format on render. Two musts: **round before formatting**, and use `tabular-nums` so the layout doesn't jitter as digits change. (Shared craft with chart-animation — see its counter section for currency/percent variants.)
 
 ```jsx
 import { interpolate, Easing } from "remotion";

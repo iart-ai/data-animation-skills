@@ -1,4 +1,4 @@
-# Data Video
+# Chart Animation
 
 Turn a dataset into a chart that moves with intent — a bar chart race, a growing line, a count-up stat — with every value driven from the current frame so numbers stay exact and the render never desyncs. For analysts, PMs, and data storytellers who want accurate, on-brand data motion instead of a fragile screen recording.
 
