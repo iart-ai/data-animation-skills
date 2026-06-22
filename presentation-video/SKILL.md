@@ -159,6 +159,8 @@ export const theme = {
 
 ## Deliver & verify (rendered stills → MP4)
 
+> **Packaged helper** (`scripts/`): tile your stills with `scripts/contact-sheet.sh sheet.png f-hook.png f-mid.png f-end.png`, then assert the encode with `scripts/probe-mp4.sh out.mp4 [WxH] [fps]`. See `scripts/README.md`.
+
 Remotion is frame-deterministic — every bullet build, transition, and slide position is a pure function of `useCurrentFrame()`, so you can render any exact frame headlessly with no seek harness. The deliverable is a narrated MP4, so still-inspection catches a clipped title, an off-brand color, or a bullet that overflows before you waste a full encode.
 
 **Output contract:**

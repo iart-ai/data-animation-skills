@@ -129,6 +129,8 @@ End on the **complete static infographic held still** for 2–3s — the takeawa
 
 ## Deliver & verify (rendered stills → MP4)
 
+> **Packaged helper** (`scripts/`): tile your stills with `scripts/contact-sheet.sh sheet.png f-hook.png f-mid.png f-end.png`, then assert the encode with `scripts/probe-mp4.sh out.mp4 [WxH] [fps]`. See `scripts/README.md`.
+
 Remotion is frame-deterministic — every icon pop, counter value, and connector draw is a pure function of `useCurrentFrame()`, so you can render any exact frame headlessly with no seek harness. The infographic carries **key numbers**, so still-inspection catches a wrong stat or a stagger that lands off-canvas before you waste an encode.
 
 **Output contract:**

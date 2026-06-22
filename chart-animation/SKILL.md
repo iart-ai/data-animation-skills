@@ -131,6 +131,8 @@ Keep colors/fonts/layout in a single theme object so 50 videos stay brand-consis
 
 ## Deliver & verify (rendered stills → MP4)
 
+> **Packaged helper** (`scripts/`): tile your stills with `scripts/contact-sheet.sh sheet.png f-hook.png f-mid.png f-end.png`, then assert the encode with `scripts/probe-mp4.sh out.mp4 [WxH] [fps]`. See `scripts/README.md`.
+
 Remotion is frame-deterministic — every bar height, counter value, and rank is a pure function of `useCurrentFrame()`, so you can render any exact frame headlessly with no seek harness. The deliverable is an MP4 carrying **exact numbers**, so still-inspection is non-negotiable here: a one-pixel layout bug is forgivable, a wrong digit is not.
 
 **Output contract:**
