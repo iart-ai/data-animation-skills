@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data in Motion · GSAP · Dark</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=Inter:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:     #0a0e1a;
+    --bg2:    #0f1424;
+    --panel:  #141b2e;
+    --ink:    #eaf0ff;
+    --mut:    #6a7596;
+    --cyan:   #2ee6d6;
+    --blue:   #4b7bff;
+    --violet: #9b6bff;
+    --pink:   #ff5ea0;
+    --lime:   #b6f24c;
+    --amber:  #ffb454;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden; background: var(--bg);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  #stage {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(130% 130% at 50% 0%, var(--bg2) 0%, var(--bg) 55%, #06080f 100%);
+    perspective: 1200px; overflow: hidden;
+  }
+
+  /* subtle grid backdrop */
+  #grid {
+    position: absolute; inset: -10%;
+    background-image:
+      linear-gradient(rgba(75,123,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(75,123,255,0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    will-change: transform; pointer-events: none;
+  }
+
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: 0.3;
+    will-change: transform; pointer-events: none;
+  }
+  #blobA { width: 46vmin; height: 46vmin; background: var(--blue); top: -10%; left: -6%; }
+  #blobB { width: 40vmin; height: 40vmin; background: var(--violet); bottom: -12%; right: -8%; opacity: 0.26; }
+  #blobC { width: 30vmin; height: 30vmin; background: var(--cyan); top: 56%; left: 60%; opacity: 0.2; }
+
+  .scene {
+    position: absolute;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; will-change: transform, opacity; z-index: 2;
+  }
+
+  .line { display: flex; gap: 0 0.04em; overflow: hidden; padding: 0.05em 0; justify-content: center; }
+
+  .word {
+    font-size: clamp(2.2rem, 10vw, 8.5rem); font-weight: 700;
+    line-height: 0.92; letter-spacing: -0.02em; color: var(--ink);
+    white-space: nowrap; will-change: transform, opacity;
+  }
+  .char { display: inline-block; will-change: transform, opacity; }
+  .cyan { color: var(--cyan); } .blue { color: var(--blue); }
+  .violet { color: var(--violet); } .pink { color: var(--pink); }
+
+  .kicker {
+    font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: clamp(0.7rem, 1.5vw, 1rem); letter-spacing: 0.4em;
+    text-transform: uppercase; color: var(--cyan); text-indent: 0.4em;
+  }
+
+  /* ===== Scene 1 : bar chart ===== */
+  #chart {
+    display: flex; align-items: flex-end; gap: clamp(0.7rem, 2.4vw, 1.8rem);
+    height: 46vmin; padding: 0 1rem;
+  }
+  .bar-wrap { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; gap: 0.7rem; }
+  .bar {
+    width: clamp(2.2rem, 5.5vw, 4.4rem);
+    border-radius: 8px 8px 0 0;
+    transform-origin: bottom center;
+    will-change: transform; position: relative;
+  }
+  .bar-val {
+    font-family: 'Space Mono', monospace; font-size: clamp(0.7rem,1.6vw,1rem);
+    font-weight: 700; color: var(--ink); will-change: opacity;
+  }
+  .bar-lbl {
+    font-family: 'Space Mono', monospace; font-size: clamp(0.6rem,1.3vw,0.8rem);
+    color: var(--mut); letter-spacing: 0.1em;
+  }
+
+  /* ===== Scene 2 : big counting number ===== */
+  #counter {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: clamp(5rem, 26vw, 24rem); line-height: 0.9;
+    color: var(--ink); letter-spacing: -0.04em;
+    background: linear-gradient(180deg, var(--cyan), var(--blue));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  #counter .pct { -webkit-text-fill-color: var(--mut); font-size: 0.4em; }
+
+  /* ===== Scene 3 : line graph ===== */
+  #graph { width: min(78vw, 56rem); height: 40vmin; }
+  #graph svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* ===== Scene 4 : donut + finale ===== */
+  #finale-wrap { display: flex; flex-direction: column; align-items: center; gap: 1.6rem; }
+  #donut-box { width: 30vmin; height: 30vmin; position: relative; }
+  #donut-box svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  #donut-pct {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-weight: 700;
+    font-size: clamp(1.4rem, 4vw, 2.6rem); color: var(--ink);
+    transform: rotate(0deg);
+  }
+  .lockup-word { font-size: clamp(2rem, 9.5vw, 8rem); font-weight: 700; line-height: 0.9; letter-spacing: -0.02em; color: var(--ink); }
+  .brand { font-weight: 500; font-size: clamp(1.8rem, 7vw, 5.5rem); color: var(--ink); }
+  .brand .dot { color: var(--cyan); }
+
+  /* transition overlays */
+  #fx { position: fixed; inset: 0; pointer-events: none; z-index: 45; overflow: hidden; }
+  .panel { position: absolute; will-change: transform; visibility: hidden; }
+
+  #flash { position: fixed; inset: 0; background: var(--cyan); opacity: 0; pointer-events: none; z-index: 50; mix-blend-mode: screen; }
+
+  .grain {
+    position: fixed; inset: 0; pointer-events: none;
+    opacity: 0.06; mix-blend-mode: overlay; z-index: 60;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  #progress {
+    position: fixed; left: 0; bottom: 0; height: 3px; width: 100%;
+    transform: scaleX(0); transform-origin: left;
+    background: linear-gradient(90deg, var(--cyan), var(--blue)); z-index: 70;
+  }
+
+  .ui {
+    position: fixed; font-family: 'Inter', sans-serif; font-weight: 900;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    z-index: 80; color: var(--mut);
+  }
+  #brand-tl { top: 22px; left: 24px; }
+  #replay {
+    bottom: 20px; right: 22px; background: transparent;
+    border: 1.5px solid #2a3454; border-radius: 999px;
+    padding: 9px 18px; cursor: pointer;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  #replay:hover { color: var(--bg); background: var(--cyan); border-color: var(--cyan); }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="grid"></div>
+    <div class="blob" id="blobA"></div>
+    <div class="blob" id="blobB"></div>
+    <div class="blob" id="blobC"></div>
+
+    <!-- Scene 1 : bar chart growing -->
+    <div class="scene" id="s1">
+      <div class="line" style="margin-bottom:2rem;"><span class="kicker">Q1&nbsp;—&nbsp;Q6&nbsp;&nbsp;Growth</span></div>
+      <div id="chart">
+        <div class="bar-wrap"><span class="bar-val" data-v="34">0</span><div class="bar" style="background:var(--blue)"></div><span class="bar-lbl">Q1</span></div>
+        <div class="bar-wrap"><span class="bar-val" data-v="52">0</span><div class="bar" style="background:var(--cyan)"></div><span class="bar-lbl">Q2</span></div>
+        <div class="bar-wrap"><span class="bar-val" data-v="47">0</span><div class="bar" style="background:var(--violet)"></div><span class="bar-lbl">Q3</span></div>
+        <div class="bar-wrap"><span class="bar-val" data-v="71">0</span><div class="bar" style="background:var(--pink)"></div><span class="bar-lbl">Q4</span></div>
+        <div class="bar-wrap"><span class="bar-val" data-v="63">0</span><div class="bar" style="background:var(--amber)"></div><span class="bar-lbl">Q5</span></div>
+        <div class="bar-wrap"><span class="bar-val" data-v="89">0</span><div class="bar" style="background:var(--lime)"></div><span class="bar-lbl">Q6</span></div>
+      </div>
+    </div>
+
+    <!-- Scene 2 : big number counting up -->
+    <div class="scene" id="s2">
+      <div class="line"><span class="kicker">Goal&nbsp;&nbsp;Completion</span></div>
+      <div class="line"><span id="counter">0<span class="pct">%</span></span></div>
+    </div>
+
+    <!-- Scene 3 : line graph draws -->
+    <div class="scene" id="s3">
+      <div class="line" style="margin-bottom:1.6rem;"><span class="kicker">Trend&nbsp;&nbsp;Over&nbsp;&nbsp;Time</span></div>
+      <div id="graph">
+        <svg viewBox="0 0 600 300" preserveAspectRatio="none">
+          <line class="axis" x1="0" y1="299" x2="600" y2="299" stroke="#2a3454" stroke-width="2"/>
+          <line class="axis" x1="1" y1="0" x2="1" y2="300" stroke="#2a3454" stroke-width="2"/>
+          <polyline id="area" points="20,260 120,200 220,225 320,140 420,165 520,70 580,40"
+            fill="rgba(46,230,214,0.10)" stroke="none" style="opacity:0"/>
+          <polyline id="gline" points="20,260 120,200 220,225 320,140 420,165 520,70 580,40"
+            fill="none" stroke="var(--cyan)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <g id="gdots"></g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Scene 4 : donut + finale lockup -->
+    <div class="scene" id="s4">
+      <div id="finale-wrap">
+        <div id="donut-box">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#1c2640" stroke-width="14"/>
+            <circle id="donut-arc" cx="60" cy="60" r="48" fill="none" stroke="var(--cyan)" stroke-width="14" stroke-linecap="round"/>
+          </svg>
+          <div id="donut-pct">0%</div>
+        </div>
+        <div class="line"><span class="lockup-word">DATA IN</span></div>
+        <div class="line"><span class="lockup-word cyan">MOTION</span></div>
+        <div class="line" style="margin-top:0.6rem;"><span class="brand">iart<span class="dot">.</span>ai</span></div>
+        <div class="line"><span class="kicker">Numbers&nbsp;&nbsp;That&nbsp;&nbsp;Tell&nbsp;&nbsp;Stories</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="fx">
+    <div class="panel" id="p1"></div>
+    <div class="panel" id="p2"></div>
+    <div class="panel" id="p3"></div>
+    <div class="panel" id="p4"></div>
+    <div class="panel" id="p5"></div>
+    <div class="panel" id="p6"></div>
+  </div>
+
+  <div id="flash"></div>
+  <div class="grain"></div>
+  <div id="progress"></div>
+  <div class="ui" id="brand-tl">◆ iart.ai</div>
+  <button class="ui" id="replay">↻ Replay</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+  function splitChars(word) {
+    const text = word.textContent;
+    word.textContent = '';
+    const chars = [];
+    for (const ch of text) {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.innerHTML = (ch === ' ') ? '&nbsp;' : ch;
+      word.appendChild(span);
+      if (ch !== ' ') chars.push(span);
+    }
+    return chars;
+  }
+  document.querySelectorAll('.word, .lockup-word').forEach(splitChars);
+  function splitBrand(el) {
+    const html = el.innerHTML; el.innerHTML = '';
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    tmp.childNodes.forEach(node => {
+      const isDot = node.nodeType === 1;
+      for (const ch of node.textContent) {
+        const span = document.createElement('span');
+        span.className = 'char' + (isDot ? ' dot' : '');
+        span.textContent = ch; el.appendChild(span);
+      }
+    });
+  }
+  document.querySelectorAll('.brand').forEach(splitBrand);
+
+  const charsOf = (sel) => gsap.utils.toArray(sel + ' .char');
+  gsap.set('.scene', { autoAlpha: 0 });
+
+  // bars start collapsed; max value 89 maps to full height
+  gsap.utils.toArray('.bar').forEach((bar) => {
+    const v = parseInt(bar.parentElement.querySelector('.bar-val').dataset.v, 10);
+    gsap.set(bar, { height: (v / 100 * 100) + '%', scaleY: 0 });
+  });
+  gsap.set('.bar-val', { opacity: 0 });
+
+  // line graph dash setup
+  const gline = document.getElementById('gline');
+  const lineLen = gline.getTotalLength ? gline.getTotalLength() : 800;
+  gsap.set(gline, { strokeDasharray: lineLen, strokeDashoffset: lineLen });
+  // add dots at each vertex
+  const gdots = document.getElementById('gdots');
+  const pts = "20,260 120,200 220,225 320,140 420,165 520,70 580,40".split(' ').map(p => p.split(',').map(Number));
+  pts.forEach(([x, y]) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 6);
+    c.setAttribute('fill', 'var(--blue)'); c.setAttribute('stroke', 'var(--ink)'); c.setAttribute('stroke-width', 2);
+    c.classList.add('gdot'); c.style.opacity = 0;
+    gdots.appendChild(c);
+  });
+
+  // donut arc setup
+  const arc = document.getElementById('donut-arc');
+  const arcLen = 2 * Math.PI * 48;
+  gsap.set(arc, { strokeDasharray: arcLen, strokeDashoffset: arcLen });
+
+  // blobs + grid drift
+  gsap.to('#blobA', { xPercent: 14, yPercent: 16, duration: 9, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  gsap.to('#blobB', { xPercent: -14, yPercent: -12, duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  gsap.to('#blobC', { xPercent: -18, yPercent: 14, duration: 8, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  gsap.to('#grid', { backgroundPosition: '48px 48px', duration: 6, repeat: -1, ease: 'none' });
+
+  function build() {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.fromTo('#progress', { scaleX: 0 }, { scaleX: 1, duration: 7.8, ease: 'none' }, 0);
+
+    // ===== SCENE 1 : bars grow with stagger (0 - 2.0) =====
+    tl.set('#s1', { autoAlpha: 1 }, 0)
+      .from('#s1 .kicker', { yPercent: 100, opacity: 0, duration: 0.4 }, 0.05);
+    gsap.utils.toArray('.bar-wrap').forEach((wrap, i) => {
+      const bar = wrap.querySelector('.bar');
+      const valEl = wrap.querySelector('.bar-val');
+      const target = parseInt(valEl.dataset.v, 10);
+      const at = 0.2 + i * 0.12;
+      tl.to(bar, { scaleY: 1, duration: 0.65, ease: 'power3.out' }, at)
+        .to(valEl, { opacity: 1, duration: 0.3 }, at + 0.2)
+        .to(valEl, { duration: 0.6, ease: 'power1.out',
+          onUpdate: function () { valEl.textContent = Math.round(this.progress() * target); }
+        }, at + 0.2);
+    });
+    // lift the winning bar
+    tl.to('#chart .bar-wrap:last-child .bar', { filter: 'brightness(1.3)', duration: 0.3, yoyo: true, repeat: 1 }, 1.5)
+      // exit
+      .to('.bar', { scaleY: 0, duration: 0.4, stagger: 0.03, ease: 'power3.in' }, 1.95)
+      .to('.bar-val', { opacity: 0, duration: 0.25 }, 1.95)
+      .set('#s1', { autoAlpha: 0 }, 2.4);
+
+    // TRANSITION 1 — DATA-BAR WIPE: vertical bars sweep up like a loading chart
+    const barsT = ['#p1','#p2','#p3','#p4','#p5','#p6'];
+    const bcol = ['var(--blue)','var(--cyan)','var(--violet)','var(--pink)','var(--amber)','var(--lime)'];
+    gsap.set(barsT, { visibility: 'visible', top: 0, height: '100%', width: '16.7%',
+      left: (i) => (i * 16.667) + '%', backgroundColor: (i) => bcol[i],
+      scaleY: 0, transformOrigin: 'bottom center' });
+    tl.to(barsT, { scaleY: 1, duration: 0.32, stagger: 0.05, ease: 'power2.in' }, 2.1)
+      .set(barsT, { transformOrigin: 'top center' }, 2.55)
+      .to(barsT, { scaleY: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out' }, 2.6)
+      .set(barsT, { visibility: 'hidden' }, 3.05);
+
+    // ===== SCENE 2 : big number counts up (2.4 - 3.8) =====
+    const counterEl = document.getElementById('counter');
+    tl.set('#s2', { autoAlpha: 1 }, 2.45)
+      .from('#s2 .kicker', { yPercent: 100, opacity: 0, duration: 0.4 }, 2.5)
+      .from('#counter', { scale: 0.4, opacity: 0, filter: 'blur(20px)', duration: 0.5, ease: 'back.out(1.5)' }, 2.6)
+      .to({ v: 0 }, {
+        v: 100, duration: 1.0, ease: 'power2.out',
+        onUpdate: function () { counterEl.firstChild.textContent = Math.round(this.targets()[0].v); }
+      }, 2.7)
+      .to('#counter', { scale: 1.08, duration: 0.2, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 3.7)
+      .to('#counter', { scale: 0.5, opacity: 0, filter: 'blur(20px)', duration: 0.4, ease: 'power3.in' }, 3.95)
+      .set('#s2', { autoAlpha: 0 }, 4.4);
+
+    // TRANSITION 2 — DIAGONAL COLOR-BAND WIPE
+    const bands = ['#p1','#p2','#p3'];
+    const bandColors = ['var(--cyan)','var(--blue)','var(--violet)'];
+    gsap.set(bands, { visibility: 'visible', left: '-10%', width: '120%', height: '130%', top: 0,
+      skewY: 8, backgroundColor: (i) => bandColors[i], xPercent: -130 });
+    tl.to(bands, { xPercent: 130, duration: 0.6, stagger: 0.08, ease: 'power3.inOut' }, 4.1)
+      .set(bands, { visibility: 'hidden' }, 4.8);
+
+    // ===== SCENE 3 : line graph draws itself (4.4 - 6.0) =====
+    tl.set('#s3', { autoAlpha: 1 }, 4.45)
+      .from('#s3 .kicker', { yPercent: 100, opacity: 0, duration: 0.4 }, 4.5)
+      .from('.axis', { scaleX: 0, scaleY: 0, opacity: 0, duration: 0.4, transformOrigin: 'left bottom' }, 4.6)
+      .to(gline, { strokeDashoffset: 0, duration: 1.3, ease: 'power1.inOut' }, 4.75)
+      .to('#area', { opacity: 1, duration: 0.6 }, 5.4);
+    // dots pop along the path
+    gsap.utils.toArray('.gdot').forEach((dot, i) => {
+      tl.fromTo(dot, { opacity: 0, attr: { r: 0 } },
+        { opacity: 1, attr: { r: 6 }, duration: 0.3, ease: 'back.out(2.5)' }, 4.78 + i * 0.18);
+    });
+    tl.to('#graph', { scale: 1.04, duration: 0.3, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 6.0)
+      .to('#s3', { autoAlpha: 0, scale: 0.94, duration: 0.4, ease: 'power2.in' }, 6.15)
+      .set('#s3', { scale: 1 }, 6.6);
+
+    // TRANSITION 3 — IRIS CIRCLE (cyan) expands to swap into finale
+    gsap.set('#p1', { visibility: 'visible', left: '50%', top: '50%', xPercent: -50, yPercent: -50,
+      width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--bg2)', scale: 1, skewY: 0 });
+    tl.to('#p1', { scale: 320, duration: 0.55, ease: 'power2.inOut' }, 6.2);
+
+    // ===== SCENE 4 : donut fills + finale lockup (6.55 - 7.8) =====
+    const arcVal = document.getElementById('donut-pct');
+    tl.set('#s4', { autoAlpha: 1 }, 6.55)
+      .to('#p1', { scale: 0, duration: 0.5, ease: 'power3.out' }, 6.6)
+      .set('#p1', { visibility: 'hidden' }, 7.1)
+      .from('#donut-box', { scale: 0, rotation: -90, opacity: 0, duration: 0.6, ease: 'back.out(1.6)' }, 6.6)
+      .to(arc, { strokeDashoffset: arcLen * (1 - 0.78), duration: 1.0, ease: 'power2.out' }, 6.85)
+      .to({ v: 0 }, { v: 78, duration: 1.0, ease: 'power2.out',
+        onUpdate: function () { arcVal.textContent = Math.round(this.targets()[0].v) + '%'; } }, 6.85)
+      .from(charsOf('#s4 .lockup-word'), {
+        yPercent: 110, opacity: 0, rotateX: -80,
+        stagger: { each: 0.03, from: 'start' }, duration: 0.55, ease: 'back.out(1.6)'
+      }, 6.95)
+      .from(charsOf('#s4 .brand'), { scale: 0, opacity: 0, stagger: 0.05, duration: 0.45, ease: 'back.out(2)' }, 7.35)
+      .from('#s4 .brand .dot', { scale: 0, duration: 0.4, ease: 'back.out(3)' }, 7.6)
+      .to('#s4 .brand .dot', { scale: 1.3, duration: 0.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 7.7)
+      .from('#s4 .kicker', { yPercent: 100, opacity: 0, duration: 0.5 }, 7.5);
+
+    tl.to('#flash', { opacity: 0.3, duration: 0.06 }, 6.6)
+      .to('#flash', { opacity: 0, duration: 0.3 }, 6.66);
+
+    tl.to({}, { duration: 0.4 });
+    return tl;
+  }
+
+  let master = build();
+  document.getElementById('replay').addEventListener('click', () => master.restart());
+</script>
+</body>
+</html>

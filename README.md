@@ -2,6 +2,8 @@
 
 > Data animation / animated infographic skills for AI coding agents — turn a CSV into a chart that moves, with exact, accurate numbers on every frame.
 
+![Data Animation Skills — animated showcase](./showcase.gif)
+
 ## Install
 
 ```bash
