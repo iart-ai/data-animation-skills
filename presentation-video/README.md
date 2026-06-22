@@ -21,4 +21,4 @@ Turn a deck or slide outline into a narrated, auto-advancing animated video — 
 - `references/sequencing.md` — the full deck sequencer: `calculateMetadata` that measures every narration clip, `<TransitionSeries>` assembly, transition frame-budget accounting, and a JSON deck-schema → video data flow.
 
 ---
-Part of **[Data Video Skills](../)** · Built by **[iart.ai](https://iart.ai)** — controllable Motion Graphics MP4 from a prompt or data.
+Part of **[Data Video Skills](../)** · Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.

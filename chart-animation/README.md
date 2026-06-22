@@ -22,4 +22,4 @@ Turn a dataset into a chart that moves with intent — a bar chart race, a growi
 - `references/data-pipeline.md` — CSV/JSON → typed props parsing and validation, the theme object pattern, animated counter/line-reveal recipes, and the template × data batch render script.
 
 ---
-Part of **[Data Video Skills](../)** · Built by **[iart.ai](https://iart.ai)** — controllable Motion Graphics MP4 from a prompt or data.
+Part of **[Data Video Skills](../)** · Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.

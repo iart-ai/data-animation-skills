@@ -21,4 +21,4 @@ Build a designed infographic — icons, a few key numbers, short text, and simpl
 - `references/sequenced-infographic.md` — a complete runnable Remotion scene: a 3-step "how it works" infographic with staggered icon pops, eased count-up stats, draw-on connectors, a master timing map, the template × data prop pattern, and a dependency-free inline-SVG variant.
 
 ---
-Part of **[Data Video Skills](../)** · Built by **[iart.ai](https://iart.ai)** — controllable Motion Graphics MP4 from a prompt or data.
+Part of **[Data Video Skills](../)** · Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.
