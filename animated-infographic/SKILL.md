@@ -127,6 +127,42 @@ End on the **complete static infographic held still** for 2–3s — the takeawa
 - Every value is a pure function of `useCurrentFrame()`; no library timers.
 - Final composed frame holds ≥2s.
 
+## Deliver & verify (rendered stills → MP4)
+
+Remotion is frame-deterministic — every icon pop, counter value, and connector draw is a pure function of `useCurrentFrame()`, so you can render any exact frame headlessly with no seek harness. The infographic carries **key numbers**, so still-inspection catches a wrong stat or a stagger that lands off-canvas before you waste an encode.
+
+**Output contract:**
+- A Remotion project with the scene registered (`<Composition>` + zod `schema` + `defaultProps`), all motion frame-driven (no timers / `Date.now()` / `Math.random()`).
+- Deliverable = the rendered `out/*.mp4` (plus the project, so the user can re-render with new stats/icons).
+- Duration data-dependent (N items × per-item budget)? compute it in `calculateMetadata`, not by hand.
+
+**Verify loop — render stills → inspect → encode.** Render single frames first (cheap, no video encode), then encode only once the layout and numbers are right.
+
+```bash
+# 1. Frame-exact stills — with the SHIPPED props. Pick frames that catch each tier:
+npx remotion still Infographic out/f-title.png --frame=20  --props='{"items":[...]}'  # title + first pop
+npx remotion still Infographic out/f-mid.png   --frame=90  --props='{"items":[...]}'  # mid cascade
+npx remotion still Infographic out/f-end.png   --frame=149 --props='{"items":[...]}'  # final composed hold (= durationInFrames - 1)
+
+# 2. Inspect each PNG — FIDELITY (every key number exact, labels/captions correct, icons the right glyph)
+#    AND artifacts (text overflow, icon off-canvas, clipped safe-area, missing font, connector pointing
+#    at the wrong item, half-revealed element where a tier should be settled).
+
+# 3. Only after the stills check out, encode:
+npx remotion render Infographic out/infographic.mp4 --props='{"items":[...]}'
+```
+
+- Use `npx remotion compositions` to read `durationInFrames`/`fps`; the **final composed hold** is the money frame — verify it looks intentional, not mid-cascade.
+- **Data-driven / batch**: verify ONE representative props set (stats + labels) via stills *before* batch-rendering all variants — catch a counter or layout bug once, not N times.
+- **README demo GIF for free**: `npx remotion render Infographic out/demo.gif --codec=gif`.
+
+**Before you finish:**
+1. `npx remotion still` renders cleanly at title, mid-cascade, and final hold — no errors, no missing fonts/icons.
+2. Every key number is **exact** (rounded, `tabular-nums`) and every element is inside the safe area at each frame.
+3. Frame-driven only — no `Date.now()` / `Math.random()` / library timers (determinism holds in CI).
+4. The **shipped** props render correctly (not just `defaultProps`) — right stats, right icons, right labels.
+5. Full MP4 encoded and plays; (optional) GIF rendered for the README.
+
 ## Reference files
 
 - `references/sequenced-infographic.md` — a complete runnable Remotion scene: a 3-step "how it works" infographic with staggered icon pops, eased count-up stats, draw-on connectors, a master timing map, and the make-it-data-driven (template × data) prop pattern. Includes a dependency-free inline-SVG variant for non-Remotion use.

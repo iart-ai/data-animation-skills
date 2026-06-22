@@ -129,6 +129,42 @@ Keep colors/fonts/layout in a single theme object so 50 videos stay brand-consis
 - Intro hold, readable per-row pace, final hold ≥2s.
 - Dataset is an input prop — one template renders every CSV in the folder.
 
+## Deliver & verify (rendered stills → MP4)
+
+Remotion is frame-deterministic — every bar height, counter value, and rank is a pure function of `useCurrentFrame()`, so you can render any exact frame headlessly with no seek harness. The deliverable is an MP4 carrying **exact numbers**, so still-inspection is non-negotiable here: a one-pixel layout bug is forgivable, a wrong digit is not.
+
+**Output contract:**
+- A Remotion project with the chart registered (`<Composition>` + zod `schema` + `defaultProps`), all motion frame-driven (no timers / `Date.now()` / `Math.random()`, no Chart.js/D3 `.transition()` clocks).
+- Deliverable = the rendered `out/*.mp4` (plus the project, so the user can re-render with new datasets).
+- Data-dependent duration (N rows × frames/row)? compute it in `calculateMetadata`, not by hand.
+
+**Verify loop — render stills → inspect → encode.** Render single frames first (cheap, no video encode), then encode only once the numbers and layout are right.
+
+```bash
+# 1. Frame-exact stills at start / mid / end (PNG, headless, fast) — with the SHIPPED props
+npx remotion still Race out/f-start.png --frame=0   --props='{"data":[...]}'
+npx remotion still Race out/f-mid.png   --frame=90  --props='{"data":[...]}'
+npx remotion still Race out/f-end.png   --frame=149 --props='{"data":[...]}'  # last = durationInFrames - 1
+
+# 2. Inspect each PNG — FIDELITY (axis labels, value labels, year/date, ranks, units all EXACT —
+#    round + tabular-nums working, no 1287.4013) AND artifacts (bar overflow, off-canvas label,
+#    clipped safe-area, missing font, wrong data binding / wrong column mapped).
+
+# 3. Only after the stills check out, encode:
+npx remotion render Race out/race.mp4 --props='{"data":[...]}'
+```
+
+- Use `npx remotion compositions` to read each chart's `durationInFrames`/`fps` and pick the end frame.
+- **Data-driven / batch (the headline case)**: verify ONE representative dataset via stills *before* batch-rendering all N files — a height-scale or column-mapping bug caught once beats finding it in 50 MP4s.
+- **README demo GIF for free**: `npx remotion render Race out/demo.gif --codec=gif`.
+
+**Before you finish:**
+1. `npx remotion still` renders cleanly at frame 0, mid, and last — no errors, no missing fonts/assets.
+2. Every number is **exact** (rounded, `Intl.NumberFormat`, `tabular-nums`) and inside the safe area at each frame.
+3. Frame-driven only — no `Date.now()` / `Math.random()` / library timers (determinism holds in CI).
+4. The **shipped** dataset props render correctly (not just `defaultProps`) — right column mapped, right scale.
+5. Full MP4 encoded and plays; (optional) GIF rendered for the README.
+
 ## Reference files
 
 - `references/bar-chart-race.md` — a complete runnable Remotion bar-chart-race component: sparse-row keyframe interpolation, per-frame ranking, gliding y-positions, animated value labels, and a D3-scale axis. Plus a vanilla canvas variant.

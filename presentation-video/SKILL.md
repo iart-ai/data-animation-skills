@@ -130,6 +130,42 @@ export const theme = {
 - Body type ≥ 28px @ 1080p, ≥ 4.5:1 contrast, content within center 90%.
 - One idea per slide; long narration splits the slide instead of shrinking type.
 
+## Deliver & verify (rendered stills → MP4)
+
+Remotion is frame-deterministic — every bullet build, transition, and slide position is a pure function of `useCurrentFrame()`, so you can render any exact frame headlessly with no seek harness. The deliverable is a narrated MP4, so still-inspection catches a clipped title, an off-brand color, or a bullet that overflows before you waste a full encode.
+
+**Output contract:**
+- A Remotion project with the deck registered (`<Composition>` + zod `schema` + `defaultProps`), all motion frame-driven (no timers / `Date.now()` / `Math.random()`); per-slide audio mounted inside its own `Sequence`.
+- Deliverable = the rendered `out/*.mp4` (plus the project, so the user can re-render with new slides/narration).
+- Slide durations are narration-derived — compute total + per-slide `durationInFrames` in `calculateMetadata` (it measures each audio clip), never by hand.
+
+**Verify loop — render stills → inspect → encode.** Render single frames first (cheap, no video encode), then encode only once each slide builds and reads right.
+
+```bash
+# 1. Frame-exact stills — with the SHIPPED props. Land one inside each slide's settled state:
+npx remotion still Deck out/f-title.png --frame=20  --props='{"slides":[...]}'   # title card settled
+npx remotion still Deck out/f-mid.png   --frame=240 --props='{"slides":[...]}'   # a content slide, bullets built
+npx remotion still Deck out/f-end.png   --frame=899 --props='{"slides":[...]}'   # last frame = durationInFrames - 1
+
+# 2. Inspect each PNG — FIDELITY (slide text exact, numbers/labels correct, brand colors/fonts applied)
+#    AND artifacts (text overflow, body type too small, content outside center 90% safe-crop, missing
+#    font, low contrast, a bullet caught mid-build where the slide should be settled).
+
+# 3. Only after the stills check out, encode:
+npx remotion render Deck out/deck.mp4 --props='{"slides":[...]}'
+```
+
+- Use `npx remotion compositions` to read the deck's `durationInFrames`/`fps` and pick the end frame; sample a still **inside each slide's hold**, not on a transition, to judge the built state.
+- **Data-driven / batch**: verify ONE representative deck (real slides + narration) via stills *before* rendering every variant — catch a type-scale or overflow bug once, not per deck.
+- **README demo GIF for free**: `npx remotion render Deck out/demo.gif --codec=gif`.
+
+**Before you finish:**
+1. `npx remotion still` renders cleanly at title, a content slide, and the last frame — no errors, no missing fonts.
+2. Slide text is exact, body type ≥ 28px @ 1080p, ≥ 4.5:1 contrast, all content inside the center 90% at each frame.
+3. Frame-driven only — no `Date.now()` / `Math.random()` / library timers (determinism holds in CI).
+4. The **shipped** props render correctly (not just `defaultProps`) — right slides, narration mounted, durations from audio.
+5. Full MP4 encoded and plays (voice + visuals locked); (optional) GIF rendered for the README.
+
 ## Reference files
 
 - `references/slide-components.md` — complete runnable Remotion `Slide`, staggered `BulletList`, animated `TitleCard`, and `SectionDivider` components with a shared theme and per-slide narration mounted via `<Audio>`.
